@@ -34,7 +34,7 @@ void main() {
 
         expect(result, isA<GuardRedirect>());
         expect(result.isRedirect, isTrue);
-        expect((result as GuardRedirect).path, equals('/login'));
+        expect((result).path, equals('/login'));
         expect(result.replace, isTrue);
       });
 
@@ -45,13 +45,13 @@ void main() {
         );
 
         expect(result, isA<GuardRedirect>());
-        expect((result as GuardRedirect).extra, {'returnTo': '/dashboard'});
+        expect((result).extra, {'returnTo': '/dashboard'});
       });
 
       test('creates redirect result with replace=false', () {
         final result = GuardResult.redirect('/login', replace: false);
 
-        expect((result as GuardRedirect).replace, isFalse);
+        expect((result).replace, isFalse);
       });
 
       test('equality works correctly', () {
@@ -79,20 +79,20 @@ void main() {
 
         expect(result, isA<GuardReject>());
         expect(result.isRejected, isTrue);
-        expect((result as GuardReject).reason, isNull);
+        expect((result).reason, isNull);
         expect(result.showError, isFalse);
       });
 
       test('creates reject result with reason', () {
         final result = GuardResult.reject(reason: 'Unauthorized');
 
-        expect((result as GuardReject).reason, equals('Unauthorized'));
+        expect((result).reason, equals('Unauthorized'));
       });
 
       test('creates reject result with showError', () {
         final result = GuardResult.reject(showError: true);
 
-        expect((result as GuardReject).showError, isTrue);
+        expect((result).showError, isTrue);
       });
 
       test('equality works correctly', () {
@@ -114,7 +114,7 @@ void main() {
     group('Pattern matching with when()', () {
       test('matches allow', () {
         final result = GuardResult.allow();
-        
+
         final matched = result.when(
           allow: () => 'allowed',
           redirect: (path, extra, replace) => 'redirect to $path',
@@ -126,7 +126,7 @@ void main() {
 
       test('matches redirect', () {
         final result = GuardResult.redirect('/login');
-        
+
         final matched = result.when(
           allow: () => 'allowed',
           redirect: (path, extra, replace) => 'redirect to $path',
@@ -138,7 +138,7 @@ void main() {
 
       test('matches reject', () {
         final result = GuardResult.reject(reason: 'No access');
-        
+
         final matched = result.when(
           allow: () => 'allowed',
           redirect: (path, extra, replace) => 'redirect to $path',
@@ -152,11 +152,10 @@ void main() {
     group('Dart 3 pattern matching', () {
       test('works with switch expression', () {
         final result = GuardResult.redirect('/login');
-        
+
         final message = switch (result) {
           GuardAllow() => 'allowed',
           GuardRedirect(:final path) => 'redirect to $path',
-          GuardReject(:final reason) => 'rejected: $reason',
         };
 
         expect(message, equals('redirect to /login'));
