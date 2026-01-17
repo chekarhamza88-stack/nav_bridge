@@ -1,0 +1,45 @@
+name: nav_bridge
+description: >
+  A progressive, router-agnostic navigation layer for Flutter that allows 
+  you to wrap existing GoRouter apps and migrate to a clean, testable, 
+  decoupled architecture without rewriting your routes.
+version: 2.0.0
+homepage: https://github.com/yourusername/nav_bridge
+repository: https://github.com/yourusername/nav_bridge
+issue_tracker: https://github.com/yourusername/nav_bridge/issues
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: '>=3.10.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  go_router: ^15.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  mocktail: ^1.0.0
+  flutter_riverpod: ^2.4.0  # For testing Riverpod guards
+
+# Optional peer dependencies (not required, but supported)
+# flutter_riverpod: ^2.4.0  # For RiverpodRouteGuard
+# auto_route: ^7.0.0        # Future: AutoRouteAdapter
+
+flutter:
+
+topics:
+  - navigation
+  - routing
+  - go-router
+  - architecture
+  - testing
+
+# screenshots:
+#   - description: 'Architecture diagram showing progressive migration path'
+#     path: screenshots/architecture.png
+
+funding:
+  - https://github.com/sponsors/yourusername
