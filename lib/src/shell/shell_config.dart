@@ -1,10 +1,10 @@
 import 'package:flutter/widgets.dart';
 
 /// Configuration for shell navigation behavior.
-/// 
+///
 /// Use this to customize how the shell handles navigation,
 /// state preservation, and transitions.
-/// 
+///
 /// ## Example
 /// ```dart
 /// final adapter = GoRouterAdapter.wrap(
@@ -20,7 +20,7 @@ import 'package:flutter/widgets.dart';
 /// ```
 class ShellConfig {
   /// Whether to preserve state when switching between branches.
-  /// 
+  ///
   /// If true, each branch maintains its navigation stack.
   /// If false, branches are rebuilt when switching.
   final bool preserveState;

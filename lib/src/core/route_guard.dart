@@ -4,21 +4,21 @@ import 'guard_context.dart';
 import 'guard_result.dart';
 
 /// Base class for route guards.
-/// 
+///
 /// Implement this class to create guards that control navigation access.
 /// Guards are executed in order of priority (higher priority first).
-/// 
+///
 /// ## Example
 /// ```dart
 /// class AuthGuard extends RouteGuard {
 ///   @override
 ///   int get priority => 100; // Higher = runs first
-///   
+///
 ///   @override
 ///   Future<GuardResult> canActivate(GuardContext context) async {
 ///     final ref = context.ref;
 ///     if (ref == null) return GuardResult.allow();
-///     
+///
 ///     final isAuthenticated = ref.read(authProvider).isAuthenticated;
 ///     if (!isAuthenticated) {
 ///       return GuardResult.redirect('/login');
@@ -31,9 +31,9 @@ abstract class RouteGuard {
   const RouteGuard();
 
   /// Priority for guard execution order.
-  /// 
+  ///
   /// Higher priority guards run first. Default is 0.
-  /// 
+  ///
   /// Common convention:
   /// - 1000+ : Critical guards (maintenance mode, etc.)
   /// - 100-999 : Auth guards
@@ -42,7 +42,7 @@ abstract class RouteGuard {
   int get priority => 0;
 
   /// Determines if navigation should be allowed.
-  /// 
+  ///
   /// Return:
   /// - [GuardResult.allow] to proceed
   /// - [GuardResult.redirect] to redirect
@@ -50,18 +50,18 @@ abstract class RouteGuard {
   Future<GuardResult> canActivate(GuardContext context);
 
   /// Optional: Called when leaving a route.
-  /// 
+  ///
   /// Return false to prevent navigation away from the current route.
   Future<bool> canDeactivate(GuardContext context) async => true;
 
   /// Optional: Routes this guard applies to.
-  /// 
+  ///
   /// If null, guard applies to all routes.
   /// If non-null, only applies to routes matching these patterns.
   List<String>? get appliesTo => null;
 
   /// Optional: Routes this guard excludes.
-  /// 
+  ///
   /// These routes bypass this guard even if they match [appliesTo].
   List<String>? get excludes => null;
 
@@ -97,7 +97,8 @@ abstract class RouteGuard {
 
     // Wildcard match (e.g., '/admin/*')
     if (pattern.endsWith('/*')) {
-      final prefix = pattern.substring(0, pattern.length - 1); // Include the trailing /
+      final prefix =
+          pattern.substring(0, pattern.length - 1); // Include the trailing /
       return path.startsWith(prefix) && path.length > prefix.length;
     }
 
@@ -122,7 +123,7 @@ abstract class RouteGuard {
 }
 
 /// A guard that combines multiple guards with AND logic.
-/// 
+///
 /// All guards must allow for navigation to proceed.
 class CompositeGuard extends RouteGuard {
   final List<RouteGuard> guards;
@@ -130,7 +131,8 @@ class CompositeGuard extends RouteGuard {
   CompositeGuard(this.guards);
 
   @override
-  int get priority => guards.map((g) => g.priority).fold(0, (a, b) => a > b ? a : b);
+  int get priority =>
+      guards.map((g) => g.priority).fold(0, (a, b) => a > b ? a : b);
 
   @override
   Future<GuardResult> canActivate(GuardContext context) async {
@@ -145,7 +147,7 @@ class CompositeGuard extends RouteGuard {
 }
 
 /// A guard that combines multiple guards with OR logic.
-/// 
+///
 /// At least one guard must allow for navigation to proceed.
 class AnyGuard extends RouteGuard {
   final List<RouteGuard> guards;
@@ -153,12 +155,13 @@ class AnyGuard extends RouteGuard {
   AnyGuard(this.guards);
 
   @override
-  int get priority => guards.map((g) => g.priority).fold(0, (a, b) => a > b ? a : b);
+  int get priority =>
+      guards.map((g) => g.priority).fold(0, (a, b) => a > b ? a : b);
 
   @override
   Future<GuardResult> canActivate(GuardContext context) async {
     GuardResult? lastReject;
-    
+
     for (final guard in guards) {
       final result = await guard.canActivate(context);
       if (result.isAllowed) {
@@ -166,7 +169,7 @@ class AnyGuard extends RouteGuard {
       }
       lastReject = result;
     }
-    
+
     return lastReject ?? GuardResult.reject(reason: 'No guards allowed');
   }
 }

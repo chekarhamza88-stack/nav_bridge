@@ -9,7 +9,7 @@ void main() {
         path: '/test',
         builder: (_, __) => const SizedBox(),
       );
-      
+
       final context = GuardContext(destination: destination);
 
       expect(context.destination, equals(destination));
@@ -25,7 +25,7 @@ void main() {
         path: '/users/:id',
         builder: (_, __) => const SizedBox(),
       );
-      
+
       final context = GuardContext(
         destination: destination,
         navigationExtra: {'key': 'value'},
@@ -147,7 +147,7 @@ void main() {
           path: '/test',
           builder: (_, __) => const SizedBox(),
         );
-        
+
         final original = GuardContext(
           destination: destination,
           navigationExtra: {'key': 'value'},

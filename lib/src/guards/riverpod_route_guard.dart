@@ -3,31 +3,31 @@ import '../core/guard_result.dart';
 import '../core/route_guard.dart';
 
 /// Base class for route guards that use Riverpod for dependency injection.
-/// 
+///
 /// Extend this class when your guard needs access to Riverpod providers.
-/// 
+///
 /// ## Example
 /// ```dart
 /// class AuthGuard extends RiverpodRouteGuard {
 ///   @override
 ///   int get priority => 100;
-///   
+///
 ///   @override
 ///   Future<GuardResult> canActivateWithRef(
 ///     GuardContext context,
 ///     Ref ref,
 ///   ) async {
 ///     final authState = ref.read(authProvider);
-///     
+///
 ///     if (!authState.isAuthenticated) {
 ///       return GuardResult.redirect('/login');
 ///     }
-///     
+///
 ///     return GuardResult.allow();
 ///   }
 /// }
 /// ```
-/// 
+///
 /// ## Setup
 /// Make sure to provide the Ref in your GoRouterAdapter:
 /// ```dart
@@ -52,10 +52,10 @@ abstract class RiverpodRouteGuard extends RouteGuard {
   }
 
   /// Override this method to implement your guard logic.
-  /// 
+  ///
   /// [context] - The guard context with route information.
   /// [ref] - The Riverpod Ref for reading/watching providers.
-  /// 
+  ///
   /// ## Example
   /// ```dart
   /// @override
@@ -65,7 +65,7 @@ abstract class RiverpodRouteGuard extends RouteGuard {
   /// ) async {
   ///   final user = ref.read(userProvider);
   ///   final requiredRole = context.destination.metadata['role'];
-  ///   
+  ///
   ///   if (user.role != requiredRole) {
   ///     return GuardResult.redirect('/unauthorized');
   ///   }
@@ -76,14 +76,14 @@ abstract class RiverpodRouteGuard extends RouteGuard {
 }
 
 /// A Riverpod guard that checks if user is authenticated.
-/// 
+///
 /// Requires an auth provider that exposes `isAuthenticated` property.
-/// 
+///
 /// ## Example
 /// ```dart
 /// // Your auth provider
 /// final authProvider = StateProvider<AuthState>((ref) => AuthState());
-/// 
+///
 /// // Use the guard
 /// final guard = AuthenticationGuard(
 ///   authProviderReader: (ref) => ref.read(authProvider).isAuthenticated,
@@ -93,10 +93,10 @@ abstract class RiverpodRouteGuard extends RouteGuard {
 class AuthenticationGuard extends RiverpodRouteGuard {
   /// Function to read auth state from Ref.
   final bool Function(dynamic ref) authProviderReader;
-  
+
   /// Path to redirect to when not authenticated.
   final String redirectTo;
-  
+
   /// Paths that don't require authentication.
   final List<String> publicPaths;
 
@@ -118,20 +118,20 @@ class AuthenticationGuard extends RiverpodRouteGuard {
     dynamic ref,
   ) async {
     final isAuthenticated = authProviderReader(ref);
-    
+
     if (!isAuthenticated) {
       return GuardResult.redirect(
         redirectTo,
         extra: {'returnTo': context.matchedLocation},
       );
     }
-    
+
     return GuardResult.allow();
   }
 }
 
 /// A Riverpod guard that checks user roles/permissions.
-/// 
+///
 /// ## Example
 /// ```dart
 /// final guard = RoleGuard(
@@ -139,7 +139,7 @@ class AuthenticationGuard extends RiverpodRouteGuard {
 ///   requiredRoles: ['admin', 'manager'],
 ///   redirectTo: '/unauthorized',
 /// );
-/// 
+///
 /// // Or use route metadata
 /// final guard = RoleGuard.fromMetadata(
 ///   userRoleReader: (ref) => ref.read(userProvider).role,
@@ -149,13 +149,13 @@ class AuthenticationGuard extends RiverpodRouteGuard {
 class RoleGuard extends RiverpodRouteGuard {
   /// Function to read user's role from Ref.
   final String? Function(dynamic ref) userRoleReader;
-  
+
   /// Roles allowed to access the route (OR logic).
   final List<String>? requiredRoles;
-  
+
   /// Metadata key for required role (if using route metadata).
   final String? metadataKey;
-  
+
   /// Path to redirect to when unauthorized.
   final String redirectTo;
 
@@ -172,7 +172,7 @@ class RoleGuard extends RiverpodRouteGuard {
     required this.userRoleReader,
     required this.metadataKey,
     this.redirectTo = '/unauthorized',
-  })  : requiredRoles = null;
+  }) : requiredRoles = null;
 
   @override
   int get priority => 50; // Lower than auth guard

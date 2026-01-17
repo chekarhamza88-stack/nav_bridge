@@ -115,7 +115,7 @@ void main() {
 
     test('stops at first non-allow result', () async {
       var secondGuardCalled = false;
-      
+
       final guard = CompositeGuard([
         _RedirectGuard('/first'),
         _CallbackGuard(() {

@@ -8,10 +8,10 @@ import '../core/guard_result.dart';
 import '../core/route_guard.dart';
 
 /// Bridge adapter for existing GoRouter guards.
-/// 
+///
 /// Allows you to use your existing guard functions with Nav Bridge
 /// without any modifications.
-/// 
+///
 /// ## Example
 /// ```dart
 /// // Your existing guard function
@@ -26,17 +26,17 @@ import '../core/route_guard.dart';
 ///   }
 ///   return GuardResult.allow();
 /// }
-/// 
+///
 /// // Bridge it to Nav Bridge
 /// final bridgedGuard = GoRouterGuardBridge(myLegacyGuard);
-/// 
+///
 /// // Use in adapter
 /// final adapter = GoRouterAdapter.wrap(
 ///   existingRouter,
 ///   additionalGuards: [bridgedGuard],
 /// );
 /// ```
-/// 
+///
 /// ## Migration Path
 /// 1. Initially bridge all existing guards (zero changes)
 /// 2. Gradually refactor to RiverpodRouteGuard (when convenient)
@@ -101,7 +101,7 @@ class GoRouterGuardBridge extends RouteGuard {
 }
 
 /// Bridge for guards that only need BuildContext and GoRouterState.
-/// 
+///
 /// Use this when your legacy guards don't use Riverpod.
 class SimpleGoRouterGuardBridge extends RouteGuard {
   /// The legacy guard function to bridge.
@@ -148,10 +148,10 @@ class SimpleGoRouterGuardBridge extends RouteGuard {
 }
 
 /// Convert a GoRouter redirect function to a RouteGuard.
-/// 
+///
 /// This is useful when you have existing redirect logic that returns
 /// a path string (or null to allow).
-/// 
+///
 /// ## Example
 /// ```dart
 /// // Your existing redirect function
@@ -161,7 +161,7 @@ class SimpleGoRouterGuardBridge extends RouteGuard {
 ///   }
 ///   return null;
 /// }
-/// 
+///
 /// // Convert to guard
 /// final guard = GoRouterRedirectBridge(myRedirectLogic);
 /// ```
@@ -207,7 +207,7 @@ class GoRouterRedirectBridge extends RouteGuard {
 }
 
 /// Bridge for guards that use the GuardManager pattern.
-/// 
+///
 /// If you have a GuardManager class that orchestrates multiple guards,
 /// you can bridge the entire manager.
 class GuardManagerBridge extends RouteGuard {

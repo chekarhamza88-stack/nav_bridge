@@ -1,10 +1,10 @@
 import 'package:flutter/widgets.dart';
 
 /// Defines a route in the application.
-/// 
+///
 /// This is a router-agnostic representation of a route that can be
 /// converted to GoRouter, AutoRoute, or any other routing solution.
-/// 
+///
 /// ## Example
 /// ```dart
 /// final profileRoute = RouteDefinition(
@@ -23,10 +23,12 @@ class RouteDefinition {
   final String? name;
 
   /// Widget builder for this route.
-  final Widget Function(BuildContext context, Map<String, String> params)? builder;
+  final Widget Function(BuildContext context, Map<String, String> params)?
+      builder;
 
   /// Page builder for custom transitions.
-  final Page<dynamic> Function(BuildContext context, Map<String, String> params)? pageBuilder;
+  final Page<dynamic> Function(
+      BuildContext context, Map<String, String> params)? pageBuilder;
 
   /// Nested child routes.
   final List<RouteDefinition> children;
@@ -51,9 +53,12 @@ class RouteDefinition {
     this.metadata = const {},
     this.redirectTo,
   }) : assert(
-         builder != null || pageBuilder != null || redirectTo != null || children.isNotEmpty,
-         'Route must have a builder, pageBuilder, redirectTo, or children',
-       );
+          builder != null ||
+              pageBuilder != null ||
+              redirectTo != null ||
+              children.isNotEmpty,
+          'Route must have a builder, pageBuilder, redirectTo, or children',
+        );
 
   /// Creates a stub route for testing purposes.
   ///
@@ -98,7 +103,8 @@ class RouteDefinition {
   /// Checks if this route matches a given path.
   bool matches(String location) {
     final pathSegments = path.split('/').where((s) => s.isNotEmpty).toList();
-    final locationSegments = location.split('/').where((s) => s.isNotEmpty).toList();
+    final locationSegments =
+        location.split('/').where((s) => s.isNotEmpty).toList();
 
     if (pathSegments.length != locationSegments.length) {
       return false;
@@ -124,9 +130,12 @@ class RouteDefinition {
   Map<String, String> extractParams(String location) {
     final params = <String, String>{};
     final pathSegments = path.split('/').where((s) => s.isNotEmpty).toList();
-    final locationSegments = location.split('/').where((s) => s.isNotEmpty).toList();
+    final locationSegments =
+        location.split('/').where((s) => s.isNotEmpty).toList();
 
-    for (var i = 0; i < pathSegments.length && i < locationSegments.length; i++) {
+    for (var i = 0;
+        i < pathSegments.length && i < locationSegments.length;
+        i++) {
       final pathSegment = pathSegments[i];
       if (pathSegment.startsWith(':')) {
         final paramName = pathSegment.substring(1);

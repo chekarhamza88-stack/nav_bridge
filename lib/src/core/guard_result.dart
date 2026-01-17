@@ -1,10 +1,10 @@
 /// Result of a route guard check.
-/// 
+///
 /// This is a sealed class with three possible outcomes:
 /// - [GuardAllow]: Navigation proceeds
 /// - [GuardRedirect]: Navigation redirects to a different path
 /// - [GuardReject]: Navigation is blocked
-/// 
+///
 /// ## Example
 /// ```dart
 /// class AuthGuard extends RouteGuard {
@@ -24,7 +24,7 @@ sealed class GuardResult {
   static GuardAllow allow() => const GuardAllow();
 
   /// Redirect to a different path.
-  /// 
+  ///
   /// [path] - The path to redirect to (e.g., '/login').
   /// [extra] - Optional extra data to pass with the redirect.
   /// [replace] - If true, replaces current route instead of pushing.
@@ -36,7 +36,7 @@ sealed class GuardResult {
       GuardRedirect(path: path, extra: extra, replace: replace);
 
   /// Reject navigation entirely.
-  /// 
+  ///
   /// [reason] - Optional reason for rejection (useful for logging).
   /// [showError] - If true, display error to user.
   static GuardReject reject({String? reason, bool showError = false}) =>
@@ -77,9 +77,7 @@ class GuardRedirect extends GuardResult {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is GuardRedirect &&
-          path == other.path &&
-          replace == other.replace;
+      other is GuardRedirect && path == other.path && replace == other.replace;
 
   @override
   int get hashCode => Object.hash(path, replace);
@@ -115,7 +113,7 @@ class GuardReject extends GuardResult {
 /// Extension methods for pattern matching on GuardResult.
 extension GuardResultExtension on GuardResult {
   /// Pattern match on the result type.
-  /// 
+  ///
   /// ## Example
   /// ```dart
   /// final result = await guard.canActivate(context);
@@ -127,13 +125,14 @@ extension GuardResultExtension on GuardResult {
   /// ```
   T when<T>({
     required T Function() allow,
-    required T Function(String path, Map<String, dynamic>? extra, bool replace) redirect,
+    required T Function(String path, Map<String, dynamic>? extra, bool replace)
+        redirect,
     required T Function(String? reason, bool showError) reject,
   }) {
     return switch (this) {
       GuardAllow() => allow(),
       GuardRedirect(:final path, :final extra, :final replace) =>
-          redirect(path, extra, replace),
+        redirect(path, extra, replace),
       GuardReject(:final reason, :final showError) => reject(reason, showError),
     };
   }

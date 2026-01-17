@@ -3,10 +3,10 @@ import 'package:flutter/widgets.dart';
 import '../core/route_definition.dart';
 
 /// Defines a shell route for nested navigation (tabs, bottom nav, etc.).
-/// 
+///
 /// This maps to GoRouter's StatefulShellRoute pattern while remaining
 /// router-agnostic.
-/// 
+///
 /// ## Example
 /// ```dart
 /// final shellRoute = ShellRouteDefinition(
@@ -81,7 +81,7 @@ class ShellRouteDefinition extends RouteDefinition {
 }
 
 /// A navigation branch within a shell (represents a tab or section).
-/// 
+///
 /// ## Example
 /// ```dart
 /// ShellBranch(
@@ -125,7 +125,7 @@ class ShellBranch {
 }
 
 /// Configuration for nested navigation within shells.
-/// 
+///
 /// ## Example
 /// ```dart
 /// NestedNavigationConfig(

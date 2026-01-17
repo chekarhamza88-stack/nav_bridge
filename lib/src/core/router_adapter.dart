@@ -2,19 +2,19 @@ import 'route_definition.dart';
 import 'route_guard.dart';
 
 /// Abstract interface for router adapters.
-/// 
+///
 /// This is the contract that all router implementations must follow,
 /// enabling router-agnostic navigation in your application.
-/// 
+///
 /// ## Available Implementations
 /// - [GoRouterAdapter] - For GoRouter
 /// - [InMemoryAdapter] - For unit testing
-/// 
+///
 /// ## Example
 /// ```dart
 /// abstract class AppRouter {
 ///   RouterAdapter get adapter;
-///   
+///
 ///   Future<void> goToHome() => adapter.go('/');
 ///   Future<void> goToProfile(String userId) => adapter.go('/profile/$userId');
 /// }

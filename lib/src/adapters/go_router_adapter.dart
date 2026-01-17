@@ -11,15 +11,15 @@ import '../core/router_adapter.dart';
 import '../shell/shell_config.dart';
 
 /// GoRouter adapter for Nav Bridge.
-/// 
+///
 /// Supports two modes:
-/// 
+///
 /// ## Wrap Mode (Recommended for existing apps)
 /// ```dart
 /// final existingRouter = GoRouter(routes: [...], redirect: ...);
 /// final adapter = GoRouterAdapter.wrap(existingRouter);
 /// ```
-/// 
+///
 /// ## Create Mode (For new apps)
 /// ```dart
 /// final adapter = GoRouterAdapter.create(
@@ -34,10 +34,11 @@ class GoRouterAdapter implements RouterAdapter {
   final List<RouteGuard> _guards;
   final NavigationObserver? _observer;
   final bool _isWrapped;
-  final StreamController<String> _locationController = StreamController.broadcast();
-  
+  final StreamController<String> _locationController =
+      StreamController.broadcast();
+
   /// Function to get DI context (Ref, BuildContext, etc.) during redirect.
-  /// 
+  ///
   /// Set this to inject dependencies into guards:
   /// ```dart
   /// adapter.contextBuilder = (state) => {
@@ -61,23 +62,23 @@ class GoRouterAdapter implements RouterAdapter {
   }
 
   /// Wrap an existing GoRouter instance.
-  /// 
+  ///
   /// This is the recommended approach for existing applications.
   /// Your existing routes, guards, and navigation continue to work.
-  /// 
+  ///
   /// ```dart
   /// // Your existing router
   /// final goRouter = GoRouter(
   ///   routes: [...],
   ///   redirect: myRedirectLogic,
   /// );
-  /// 
+  ///
   /// // Wrap it
   /// final adapter = GoRouterAdapter.wrap(
   ///   goRouter,
   ///   additionalGuards: [AuthGuard(), PermissionGuard()],
   /// );
-  /// 
+  ///
   /// // Set context builder for DI
   /// adapter.contextBuilder = (state) => {'ref': ref};
   /// ```
@@ -96,10 +97,10 @@ class GoRouterAdapter implements RouterAdapter {
   }
 
   /// Create a new GoRouter instance from configuration.
-  /// 
+  ///
   /// Use this for new applications or when you want Nav Bridge
   /// to manage the entire routing configuration.
-  /// 
+  ///
   /// ```dart
   /// final adapter = GoRouterAdapter.create(
   ///   config: ComposerRouterConfig(
@@ -117,7 +118,7 @@ class GoRouterAdapter implements RouterAdapter {
     GlobalKey<NavigatorState>? navigatorKey,
   }) {
     final guards = List<RouteGuard>.from(config.guards);
-    
+
     final router = GoRouter(
       initialLocation: config.initialLocation,
       navigatorKey: navigatorKey,
@@ -137,7 +138,7 @@ class GoRouterAdapter implements RouterAdapter {
   ///
   /// This factory creates a new GoRouter but integrates Nav Bridge's
   /// guard system into GoRouter's redirect mechanism.
-  /// 
+  ///
   /// ```dart
   /// final adapter = GoRouterAdapter.withGuards(
   ///   routes: myRoutes,
@@ -155,7 +156,7 @@ class GoRouterAdapter implements RouterAdapter {
     NavigationObserver? observer,
   }) {
     late final GoRouterAdapter adapter;
-    
+
     final router = GoRouter(
       initialLocation: initialLocation,
       navigatorKey: navigatorKey,
@@ -172,15 +173,16 @@ class GoRouterAdapter implements RouterAdapter {
       isWrapped: false,
       observer: observer,
     );
-    
+
     adapter.contextBuilder = contextBuilder;
-    
+
     return adapter;
   }
 
   void _setupLocationListener() {
     _router.routerDelegate.addListener(() {
-      final location = _router.routerDelegate.currentConfiguration.uri.toString();
+      final location =
+          _router.routerDelegate.currentConfiguration.uri.toString();
       _locationController.add(location);
     });
   }
@@ -201,10 +203,11 @@ class GoRouterAdapter implements RouterAdapter {
         pathParameters: state.pathParameters,
         queryParameters: state.uri.queryParameters,
         navigationExtra: state.extra,
-        extras: contextBuilder?.call(state) ?? {
-          'goRouterState': state,
-          'context': context,
-        },
+        extras: contextBuilder?.call(state) ??
+            {
+              'goRouterState': state,
+              'context': context,
+            },
       );
 
       try {
@@ -273,7 +276,8 @@ class GoRouterAdapter implements RouterAdapter {
     // Add safety limit to prevent infinite loops
     var iterations = 0;
     const maxIterations = 100;
-    while (canPop() && !predicate(currentLocation) && iterations < maxIterations) {
+    while (
+        canPop() && !predicate(currentLocation) && iterations < maxIterations) {
       pop();
       iterations++;
     }
@@ -342,7 +346,8 @@ class GoRouterAdapter implements RouterAdapter {
             ? (context, state) => def.builder!(context, state.pathParameters)
             : null,
         pageBuilder: def.pageBuilder != null
-            ? (context, state) => def.pageBuilder!(context, state.pathParameters)
+            ? (context, state) =>
+                def.pageBuilder!(context, state.pathParameters)
             : null,
         routes: _buildRoutes(def.children),
       );

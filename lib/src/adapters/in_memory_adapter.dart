@@ -7,28 +7,28 @@ import '../core/route_guard.dart';
 import '../core/router_adapter.dart';
 
 /// In-memory router adapter for unit testing.
-/// 
+///
 /// Allows testing navigation logic without Flutter widgets or BuildContext.
-/// 
+///
 /// ## Example
 /// ```dart
 /// void main() {
 ///   test('navigates to profile after login', () async {
 ///     final router = InMemoryAdapter();
-///     
+///
 ///     await router.go('/login');
 ///     expect(router.currentLocation, '/login');
-///     
+///
 ///     await router.go('/profile/42');
 ///     expect(router.currentLocation, '/profile/42');
 ///     expect(router.navigationHistory, ['/login', '/profile/42']);
 ///   });
-///   
+///
 ///   test('auth guard redirects', () async {
 ///     final router = InMemoryAdapter(
 ///       guards: [MockAuthGuard(isAuthenticated: false)],
 ///     );
-///     
+///
 ///     await router.go('/protected');
 ///     expect(router.currentLocation, '/login');
 ///   });
@@ -38,11 +38,12 @@ class InMemoryAdapter implements RouterAdapter {
   final List<RouteGuard> _guards;
   final List<String> _navigationStack = [];
   final List<NavigationEvent> _history = [];
-  final StreamController<String> _locationController = StreamController.broadcast();
-  
+  final StreamController<String> _locationController =
+      StreamController.broadcast();
+
   /// DI context passed to guards.
   Map<String, Object?> guardContext;
-  
+
   String _currentLocation;
   Map<String, String> _currentPathParams = {};
   Map<String, String> _currentQueryParams = {};
@@ -61,8 +62,7 @@ class InMemoryAdapter implements RouterAdapter {
   List<NavigationEvent> get history => List.unmodifiable(_history);
 
   /// Just the locations navigated to.
-  List<String> get navigationHistory =>
-      _history.map((e) => e.to).toList();
+  List<String> get navigationHistory => _history.map((e) => e.to).toList();
 
   /// The navigation stack (for push/pop testing).
   List<String> get stack => List.unmodifiable(_navigationStack);
@@ -114,7 +114,10 @@ class InMemoryAdapter implements RouterAdapter {
       }
     }
 
-    return (redirect: null, rejected: false); // No redirect needed, not rejected
+    return (
+      redirect: null,
+      rejected: false
+    ); // No redirect needed, not rejected
   }
 
   Map<String, String> _extractPathParams(String location) {
@@ -157,7 +160,9 @@ class InMemoryAdapter implements RouterAdapter {
     _history.add(NavigationEvent(
       from: from,
       to: finalLocation,
-      type: guardResult.redirect != null ? NavigationType.redirected : NavigationType.go,
+      type: guardResult.redirect != null
+          ? NavigationType.redirected
+          : NavigationType.go,
       redirectedFrom: guardResult.redirect != null ? location : null,
     ));
 
@@ -183,7 +188,9 @@ class InMemoryAdapter implements RouterAdapter {
     _history.add(NavigationEvent(
       from: from,
       to: finalLocation,
-      type: guardResult.redirect != null ? NavigationType.redirected : NavigationType.push,
+      type: guardResult.redirect != null
+          ? NavigationType.redirected
+          : NavigationType.push,
       redirectedFrom: guardResult.redirect != null ? location : null,
     ));
 
@@ -211,7 +218,9 @@ class InMemoryAdapter implements RouterAdapter {
     _history.add(NavigationEvent(
       from: from,
       to: finalLocation,
-      type: guardResult.redirect != null ? NavigationType.redirected : NavigationType.replace,
+      type: guardResult.redirect != null
+          ? NavigationType.redirected
+          : NavigationType.replace,
       redirectedFrom: guardResult.redirect != null ? location : null,
     ));
 
@@ -221,19 +230,19 @@ class InMemoryAdapter implements RouterAdapter {
   @override
   void pop<T>([T? result]) {
     if (_navigationStack.length <= 1) return;
-    
+
     final from = _currentLocation;
     _navigationStack.removeLast();
     _currentLocation = _navigationStack.last;
     _currentPathParams = _extractPathParams(_currentLocation);
     _currentQueryParams = _extractQueryParams(_currentLocation);
-    
+
     _history.add(NavigationEvent(
       from: from,
       to: _currentLocation,
       type: NavigationType.pop,
     ));
-    
+
     _locationController.add(_currentLocation);
   }
 
@@ -242,7 +251,9 @@ class InMemoryAdapter implements RouterAdapter {
     // Add safety limit to prevent infinite loops
     var iterations = 0;
     const maxIterations = 100;
-    while (_navigationStack.length > 1 && !predicate(_currentLocation) && iterations < maxIterations) {
+    while (_navigationStack.length > 1 &&
+        !predicate(_currentLocation) &&
+        iterations < maxIterations) {
       pop();
       iterations++;
     }
@@ -258,10 +269,12 @@ class InMemoryAdapter implements RouterAdapter {
   String? get currentRouteName => _currentRouteName;
 
   @override
-  Map<String, String> get currentPathParameters => Map.unmodifiable(_currentPathParams);
+  Map<String, String> get currentPathParameters =>
+      Map.unmodifiable(_currentPathParams);
 
   @override
-  Map<String, String> get currentQueryParameters => Map.unmodifiable(_currentQueryParams);
+  Map<String, String> get currentQueryParameters =>
+      Map.unmodifiable(_currentQueryParams);
 
   @override
   Stream<String> get locationStream => _locationController.stream;
