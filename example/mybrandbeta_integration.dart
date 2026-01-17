@@ -62,11 +62,11 @@ FutureOr<GuardResult> existingAuthGuard(
 ) async {
   // Your existing logic - cast ref to Ref when using
   final isAuthenticated = (ref as Ref).read(authStateProvider).isAuthenticated;
-  
+
   if (!isAuthenticated && !state.matchedLocation.startsWith('/login')) {
     return GuardResult.redirect('/login');
   }
-  
+
   return GuardResult.allow();
 }
 
@@ -80,18 +80,18 @@ final bridgedAuthGuard = GoRouterGuardBridge(
 /// Updated adapter with bridged guards
 final routerAdapterWithGuardsProvider = Provider<GoRouterAdapter>((ref) {
   final goRouter = ref.watch(goRouterProvider);
-  
+
   final adapter = GoRouterAdapter.wrap(
     goRouter,
     additionalGuards: [bridgedAuthGuard],
   );
-  
+
   // Inject Riverpod Ref for guards
   adapter.contextBuilder = (state) => {
-    'ref': ref,
-    'goRouterState': state,
-  };
-  
+        'ref': ref,
+        'goRouterState': state,
+      };
+
   return adapter;
 });
 
@@ -113,30 +113,30 @@ abstract class AppRouter {
 /// Implementation using GoRouterAdapter
 class MyBrandAppRouter implements AppRouter {
   final GoRouterAdapter _adapter;
-  
+
   MyBrandAppRouter(this._adapter);
-  
+
   @override
   Future<void> goToHome() => _adapter.go('/');
-  
+
   @override
   Future<void> goToLogin({String? returnTo}) {
     final extra = returnTo != null ? {'returnTo': returnTo} : null;
     return _adapter.go('/login', extra: extra);
   }
-  
+
   @override
   Future<void> goToProfile(String userId) => _adapter.go('/profile/$userId');
-  
+
   @override
   Future<void> goToSettings() => _adapter.go('/settings');
-  
+
   @override
   Future<void> goToCarDetails(String carId) => _adapter.go('/car/$carId');
-  
+
   @override
   void pop() => _adapter.pop();
-  
+
   @override
   bool canPop() => _adapter.canPop();
 }
@@ -155,24 +155,24 @@ final appRouterProvider = Provider<AppRouter>((ref) {
 class ModernAuthGuard extends RiverpodRouteGuard {
   @override
   int get priority => 100;
-  
+
   @override
   List<String>? get excludes => ['/login', '/register', '/forgot-password'];
-  
+
   @override
   Future<GuardResult> canActivateWithRef(
     GuardContext context,
     dynamic ref,
   ) async {
     final authState = (ref as Ref).read(authStateProvider);
-    
+
     if (!authState.isAuthenticated) {
       return GuardResult.redirect(
         '/login',
         extra: {'returnTo': context.matchedLocation},
       );
     }
-    
+
     return GuardResult.allow();
   }
 }
@@ -212,7 +212,7 @@ class OldStyleWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ElevatedButton(
-      onPressed: () => context.go('/profile/42'),  // Still works!
+      onPressed: () => context.go('/profile/42'), // Still works!
       child: const Text('Go to Profile'),
     );
   }
@@ -225,7 +225,7 @@ class NewStyleWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.read(appRouterProvider);
-    
+
     return ElevatedButton(
       onPressed: () => router.goToProfile('42'),
       child: const Text('Go to Profile'),
@@ -295,20 +295,23 @@ class MockAuthGuard extends RouteGuard {
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
   @override
-  Widget build(BuildContext context) => const Scaffold(body: Center(child: Text('Home')));
+  Widget build(BuildContext context) =>
+      const Scaffold(body: Center(child: Text('Home')));
 }
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
   @override
-  Widget build(BuildContext context) => const Scaffold(body: Center(child: Text('Login')));
+  Widget build(BuildContext context) =>
+      const Scaffold(body: Center(child: Text('Login')));
 }
 
 class ProfileScreen extends StatelessWidget {
   final String userId;
   const ProfileScreen({super.key, required this.userId});
   @override
-  Widget build(BuildContext context) => Scaffold(body: Center(child: Text('Profile $userId')));
+  Widget build(BuildContext context) =>
+      Scaffold(body: Center(child: Text('Profile $userId')));
 }
 
 // Placeholder providers
