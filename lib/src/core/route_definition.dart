@@ -55,6 +55,18 @@ class RouteDefinition {
          'Route must have a builder, pageBuilder, redirectTo, or children',
        );
 
+  /// Creates a stub route for testing purposes.
+  ///
+  /// This creates a minimal route definition with a no-op builder,
+  /// useful for InMemoryAdapter and unit tests.
+  factory RouteDefinition.stub(String path, {String? name}) {
+    return RouteDefinition(
+      path: path,
+      name: name,
+      builder: (_, __) => const SizedBox.shrink(),
+    );
+  }
+
   /// Creates a redirect route.
   factory RouteDefinition.redirect({
     required String from,

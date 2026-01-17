@@ -9,7 +9,7 @@ import '../core/route_guard.dart';
 
 /// Bridge adapter for existing GoRouter guards.
 /// 
-/// Allows you to use your existing guard functions with Routing Composer
+/// Allows you to use your existing guard functions with Nav Bridge
 /// without any modifications.
 /// 
 /// ## Example
@@ -27,7 +27,7 @@ import '../core/route_guard.dart';
 ///   return GuardResult.allow();
 /// }
 /// 
-/// // Bridge it to Routing Composer
+/// // Bridge it to Nav Bridge
 /// final bridgedGuard = GoRouterGuardBridge(myLegacyGuard);
 /// 
 /// // Use in adapter

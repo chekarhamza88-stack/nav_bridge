@@ -97,8 +97,8 @@ abstract class RouteGuard {
 
     // Wildcard match (e.g., '/admin/*')
     if (pattern.endsWith('/*')) {
-      final prefix = pattern.substring(0, pattern.length - 2);
-      return path.startsWith(prefix);
+      final prefix = pattern.substring(0, pattern.length - 1); // Include the trailing /
+      return path.startsWith(prefix) && path.length > prefix.length;
     }
 
     // Parameter match (e.g., '/users/:id')

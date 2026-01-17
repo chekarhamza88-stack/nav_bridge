@@ -4,9 +4,9 @@ description: >
   you to wrap existing GoRouter apps and migrate to a clean, testable, 
   decoupled architecture without rewriting your routes.
 version: 2.0.0
-homepage: https://github.com/yourusername/nav_bridge
-repository: https://github.com/yourusername/nav_bridge
-issue_tracker: https://github.com/yourusername/nav_bridge/issues
+homepage: https://github.com/chekarhamza88-stack/nav_bridge
+repository: https://github.com/chekarhamza88-stack/nav_bridge
+issue_tracker: https://github.com/chekarhamza88-stack/nav_bridge/issues
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -37,9 +37,9 @@ topics:
   - architecture
   - testing
 
-# screenshots:
-#   - description: 'Architecture diagram showing progressive migration path'
-#     path: screenshots/architecture.png
+screenshots:
+  - description: 'Architecture diagram showing progressive migration path'
+    path: assets/screenshots/architecture.png
 
 funding:
-  - https://github.com/sponsors/yourusername
+  - https://github.com/chekarhamza88-stack

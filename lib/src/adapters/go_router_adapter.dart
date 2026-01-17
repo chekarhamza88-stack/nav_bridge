@@ -10,7 +10,7 @@ import '../core/route_guard.dart';
 import '../core/router_adapter.dart';
 import '../shell/shell_config.dart';
 
-/// GoRouter adapter for Routing Composer.
+/// GoRouter adapter for Nav Bridge.
 /// 
 /// Supports two modes:
 /// 
@@ -97,7 +97,7 @@ class GoRouterAdapter implements RouterAdapter {
 
   /// Create a new GoRouter instance from configuration.
   /// 
-  /// Use this for new applications or when you want Routing Composer
+  /// Use this for new applications or when you want Nav Bridge
   /// to manage the entire routing configuration.
   /// 
   /// ```dart
@@ -133,9 +133,9 @@ class GoRouterAdapter implements RouterAdapter {
     );
   }
 
-  /// Create a redirect-enabled GoRouter with Routing Composer guards.
-  /// 
-  /// This factory creates a new GoRouter but integrates Routing Composer's
+  /// Create a redirect-enabled GoRouter with Nav Bridge guards.
+  ///
+  /// This factory creates a new GoRouter but integrates Nav Bridge's
   /// guard system into GoRouter's redirect mechanism.
   /// 
   /// ```dart

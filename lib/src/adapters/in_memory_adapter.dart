@@ -80,7 +80,8 @@ class InMemoryAdapter implements RouterAdapter {
   }
 
   /// Simulate a redirect from guards.
-  Future<String?> _runGuards(String to) async {
+  /// Returns a record with (redirect path or null, was rejected).
+  Future<({String? redirect, bool rejected})> _runGuards(String to) async {
     final sortedGuards = List<RouteGuard>.from(_guards)
       ..sort((a, b) => b.priority.compareTo(a.priority));
 
@@ -88,7 +89,7 @@ class InMemoryAdapter implements RouterAdapter {
       if (!guard.shouldActivateFor(to)) continue;
 
       final context = GuardContext(
-        destination: RouteDefinition(path: to),
+        destination: RouteDefinition.stub(to),
         matchedLocation: to,
         pathParameters: _extractPathParams(to),
         queryParameters: _extractQueryParams(to),
@@ -101,7 +102,7 @@ class InMemoryAdapter implements RouterAdapter {
         case GuardAllow():
           continue;
         case GuardRedirect(:final path):
-          return path;
+          return (redirect: path, rejected: false);
         case GuardReject():
           // For testing, we might want to track this
           _history.add(NavigationEvent(
@@ -109,11 +110,11 @@ class InMemoryAdapter implements RouterAdapter {
             to: to,
             type: NavigationType.rejected,
           ));
-          return null; // Stay on current location
+          return (redirect: null, rejected: true);
       }
     }
 
-    return null; // No redirect needed
+    return (redirect: null, rejected: false); // No redirect needed, not rejected
   }
 
   Map<String, String> _extractPathParams(String location) {
@@ -139,69 +140,81 @@ class InMemoryAdapter implements RouterAdapter {
   @override
   Future<void> go(String location, {Object? extra}) async {
     final from = _currentLocation;
-    
-    final redirect = await _runGuards(location);
-    final finalLocation = redirect ?? location;
-    
+
+    final guardResult = await _runGuards(location);
+
+    // If rejected, stay at current location
+    if (guardResult.rejected) return;
+
+    final finalLocation = guardResult.redirect ?? location;
+
     _currentLocation = finalLocation;
     _currentPathParams = _extractPathParams(finalLocation);
     _currentQueryParams = _extractQueryParams(finalLocation);
     _navigationStack.clear();
     _navigationStack.add(finalLocation);
-    
+
     _history.add(NavigationEvent(
       from: from,
       to: finalLocation,
-      type: redirect != null ? NavigationType.redirected : NavigationType.go,
-      redirectedFrom: redirect != null ? location : null,
+      type: guardResult.redirect != null ? NavigationType.redirected : NavigationType.go,
+      redirectedFrom: guardResult.redirect != null ? location : null,
     ));
-    
+
     _locationController.add(finalLocation);
   }
 
   @override
   Future<void> push(String location, {Object? extra}) async {
     final from = _currentLocation;
-    
-    final redirect = await _runGuards(location);
-    final finalLocation = redirect ?? location;
-    
+
+    final guardResult = await _runGuards(location);
+
+    // If rejected, stay at current location
+    if (guardResult.rejected) return;
+
+    final finalLocation = guardResult.redirect ?? location;
+
     _currentLocation = finalLocation;
     _currentPathParams = _extractPathParams(finalLocation);
     _currentQueryParams = _extractQueryParams(finalLocation);
     _navigationStack.add(finalLocation);
-    
+
     _history.add(NavigationEvent(
       from: from,
       to: finalLocation,
-      type: redirect != null ? NavigationType.redirected : NavigationType.push,
-      redirectedFrom: redirect != null ? location : null,
+      type: guardResult.redirect != null ? NavigationType.redirected : NavigationType.push,
+      redirectedFrom: guardResult.redirect != null ? location : null,
     ));
-    
+
     _locationController.add(finalLocation);
   }
 
   @override
   Future<void> replace(String location, {Object? extra}) async {
     final from = _currentLocation;
-    
-    final redirect = await _runGuards(location);
-    final finalLocation = redirect ?? location;
-    
+
+    final guardResult = await _runGuards(location);
+
+    // If rejected, stay at current location
+    if (guardResult.rejected) return;
+
+    final finalLocation = guardResult.redirect ?? location;
+
     _currentLocation = finalLocation;
     _currentPathParams = _extractPathParams(finalLocation);
     _currentQueryParams = _extractQueryParams(finalLocation);
     if (_navigationStack.isNotEmpty) {
       _navigationStack[_navigationStack.length - 1] = finalLocation;
     }
-    
+
     _history.add(NavigationEvent(
       from: from,
       to: finalLocation,
-      type: redirect != null ? NavigationType.redirected : NavigationType.replace,
-      redirectedFrom: redirect != null ? location : null,
+      type: guardResult.redirect != null ? NavigationType.redirected : NavigationType.replace,
+      redirectedFrom: guardResult.redirect != null ? location : null,
     ));
-    
+
     _locationController.add(finalLocation);
   }
 

@@ -70,7 +70,7 @@ FutureOr<GuardResult> existingAuthGuard(
   return GuardResult.allow();
 }
 
-/// Bridge it to Routing Composer (zero changes to existing guard)
+/// Bridge it to Nav Bridge (zero changes to existing guard)
 final bridgedAuthGuard = GoRouterGuardBridge(
   existingAuthGuard,
   priority: 100,
