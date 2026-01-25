@@ -2,9 +2,11 @@ import 'dart:async';
 
 import '../core/guard_context.dart';
 import '../core/guard_result.dart';
+import '../core/nav_bridge_route.dart';
 import '../core/route_definition.dart';
 import '../core/route_guard.dart';
 import '../core/router_adapter.dart';
+import '../core/typed_route.dart';
 
 /// In-memory router adapter for unit testing.
 ///
@@ -41,6 +43,9 @@ class InMemoryAdapter implements RouterAdapter {
   final StreamController<String> _locationController =
       StreamController.broadcast();
 
+  /// Registered routes for named navigation.
+  final List<NavBridgeRoute> _routes;
+
   /// DI context passed to guards.
   Map<String, Object?> guardContext;
 
@@ -52,9 +57,11 @@ class InMemoryAdapter implements RouterAdapter {
   InMemoryAdapter({
     String initialLocation = '/',
     List<RouteGuard>? guards,
+    List<NavBridgeRoute>? routes,
     this.guardContext = const {},
   })  : _currentLocation = initialLocation,
-        _guards = guards ?? [] {
+        _guards = guards ?? [],
+        _routes = routes ?? [] {
     _navigationStack.add(initialLocation);
   }
 
@@ -225,6 +232,138 @@ class InMemoryAdapter implements RouterAdapter {
     ));
 
     _locationController.add(finalLocation);
+  }
+
+  // Named navigation methods
+
+  @override
+  Future<void> goNamed(
+    String name, {
+    Map<String, String> pathParameters = const {},
+    Map<String, String> queryParameters = const {},
+    Object? extra,
+  }) async {
+    final route = _findRouteByName(name);
+    if (route == null) {
+      throw Exception('Route not found: $name');
+    }
+
+    final path = _buildPath(route.path, pathParameters, queryParameters);
+    _currentRouteName = name;
+    return go(path, extra: extra);
+  }
+
+  @override
+  Future<void> pushNamed(
+    String name, {
+    Map<String, String> pathParameters = const {},
+    Map<String, String> queryParameters = const {},
+    Object? extra,
+  }) async {
+    final route = _findRouteByName(name);
+    if (route == null) {
+      throw Exception('Route not found: $name');
+    }
+
+    final path = _buildPath(route.path, pathParameters, queryParameters);
+    _currentRouteName = name;
+    return push(path, extra: extra);
+  }
+
+  @override
+  Future<void> replaceNamed(
+    String name, {
+    Map<String, String> pathParameters = const {},
+    Map<String, String> queryParameters = const {},
+    Object? extra,
+  }) async {
+    final route = _findRouteByName(name);
+    if (route == null) {
+      throw Exception('Route not found: $name');
+    }
+
+    final path = _buildPath(route.path, pathParameters, queryParameters);
+    _currentRouteName = name;
+    return replace(path, extra: extra);
+  }
+
+  // Type-safe navigation methods
+
+  @override
+  Future<void> goToRoute(TypedRoute route) => goNamed(
+        route.name,
+        pathParameters: route.pathParameters,
+        queryParameters: route.queryParameters,
+        extra: route.extra,
+      );
+
+  @override
+  Future<void> pushRoute(TypedRoute route) => pushNamed(
+        route.name,
+        pathParameters: route.pathParameters,
+        queryParameters: route.queryParameters,
+        extra: route.extra,
+      );
+
+  @override
+  Future<void> replaceRoute(TypedRoute route) => replaceNamed(
+        route.name,
+        pathParameters: route.pathParameters,
+        queryParameters: route.queryParameters,
+        extra: route.extra,
+      );
+
+  /// Finds a route by name, searching recursively through all routes.
+  NavBridgeRoute? _findRouteByName(String name) {
+    return _searchRouteByName(_routes, name);
+  }
+
+  NavBridgeRoute? _searchRouteByName(List<NavBridgeRoute> routes, String name) {
+    for (final route in routes) {
+      if (route.name == name) return route;
+
+      // Search children recursively
+      final childResult = _searchRouteByName(route.children, name);
+      if (childResult != null) return childResult;
+    }
+    return null;
+  }
+
+  /// Builds a path from a template and parameters.
+  String _buildPath(
+    String template,
+    Map<String, String> pathParams,
+    Map<String, String> queryParams,
+  ) {
+    var path = template;
+
+    // Replace path parameters
+    pathParams.forEach((key, value) {
+      path = path.replaceAll(':$key', value);
+    });
+
+    // Add query parameters
+    if (queryParams.isNotEmpty) {
+      final query = queryParams.entries
+          .map((e) =>
+              '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
+          .join('&');
+      path = '$path?$query';
+    }
+
+    return path;
+  }
+
+  /// Registers routes for named navigation.
+  ///
+  /// This is useful when you want to add routes after construction.
+  void registerRoutes(List<NavBridgeRoute> routes) {
+    _routes.addAll(routes);
+  }
+
+  /// Clears all registered routes.
+  void clearRoutes() {
+    _routes.clear();
   }
 
   @override
