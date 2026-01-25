@@ -85,12 +85,12 @@ abstract class RiverpodRouteGuard extends RouteGuard {
 /// final authProvider = StateProvider<AuthState>((ref) => AuthState());
 ///
 /// // Use the guard
-/// final guard = AuthenticationGuard(
+/// final guard = RiverpodAuthenticationGuard(
 ///   authProviderReader: (ref) => ref.read(authProvider).isAuthenticated,
 ///   redirectTo: '/login',
 /// );
 /// ```
-class AuthenticationGuard extends RiverpodRouteGuard {
+class RiverpodAuthenticationGuard extends RiverpodRouteGuard {
   /// Function to read auth state from Ref.
   final bool Function(dynamic ref) authProviderReader;
 
@@ -100,7 +100,7 @@ class AuthenticationGuard extends RiverpodRouteGuard {
   /// Paths that don't require authentication.
   final List<String> publicPaths;
 
-  const AuthenticationGuard({
+  const RiverpodAuthenticationGuard({
     required this.authProviderReader,
     this.redirectTo = '/login',
     this.publicPaths = const ['/login', '/register', '/forgot-password'],
@@ -134,19 +134,19 @@ class AuthenticationGuard extends RiverpodRouteGuard {
 ///
 /// ## Example
 /// ```dart
-/// final guard = RoleGuard(
+/// final guard = RiverpodRoleGuard(
 ///   userRoleReader: (ref) => ref.read(userProvider).role,
 ///   requiredRoles: ['admin', 'manager'],
 ///   redirectTo: '/unauthorized',
 /// );
 ///
 /// // Or use route metadata
-/// final guard = RoleGuard.fromMetadata(
+/// final guard = RiverpodRoleGuard.fromMetadata(
 ///   userRoleReader: (ref) => ref.read(userProvider).role,
 ///   metadataKey: 'requiredRole',
 /// );
 /// ```
-class RoleGuard extends RiverpodRouteGuard {
+class RiverpodRoleGuard extends RiverpodRouteGuard {
   /// Function to read user's role from Ref.
   final String? Function(dynamic ref) userRoleReader;
 
@@ -159,7 +159,7 @@ class RoleGuard extends RiverpodRouteGuard {
   /// Path to redirect to when unauthorized.
   final String redirectTo;
 
-  const RoleGuard({
+  const RiverpodRoleGuard({
     required this.userRoleReader,
     this.requiredRoles,
     this.metadataKey,
@@ -168,7 +168,7 @@ class RoleGuard extends RiverpodRouteGuard {
             'Either requiredRoles or metadataKey must be provided');
 
   /// Create a role guard that reads required role from route metadata.
-  const RoleGuard.fromMetadata({
+  const RiverpodRoleGuard.fromMetadata({
     required this.userRoleReader,
     required this.metadataKey,
     this.redirectTo = '/unauthorized',
@@ -206,3 +206,14 @@ class RoleGuard extends RiverpodRouteGuard {
     return GuardResult.redirect(redirectTo);
   }
 }
+
+// Backward compatibility aliases
+// These are deprecated and will be removed in a future version.
+
+/// @Deprecated('Use RiverpodAuthenticationGuard instead')
+/// Alias for backward compatibility.
+typedef AuthenticationGuard = RiverpodAuthenticationGuard;
+
+/// @Deprecated('Use RiverpodRoleGuard instead')
+/// Alias for backward compatibility.
+typedef RoleGuard = RiverpodRoleGuard;

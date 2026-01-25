@@ -1,13 +1,17 @@
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
-import 'package:go_router/go_router.dart';
+import 'package:go_router/go_router.dart' hide TypedRoute;
 
 import '../core/guard_context.dart';
 import '../core/guard_result.dart';
+import '../core/nav_bridge_route.dart';
+import '../core/nav_bridge_shell_route.dart';
 import '../core/route_definition.dart';
 import '../core/route_guard.dart';
+import '../core/route_params.dart';
 import '../core/router_adapter.dart';
+import '../core/typed_route.dart';
 import '../shell/shell_config.dart';
 
 /// GoRouter adapter for Nav Bridge.
@@ -179,6 +183,62 @@ class GoRouterAdapter implements RouterAdapter {
     return adapter;
   }
 
+  /// Create a GoRouter from NavBridgeRoutes with automatic guard integration.
+  ///
+  /// This factory creates a new GoRouter from router-agnostic NavBridgeRoute
+  /// definitions, converting them to GoRouter routes automatically.
+  ///
+  /// ```dart
+  /// final routes = [
+  ///   NavBridgeRoute(path: '/', name: 'home', builder: (_, __) => HomeScreen()),
+  ///   NavBridgeRoute(path: '/user/:id', name: 'user', builder: (_, p) => UserScreen(id: p.get('id'))),
+  /// ];
+  ///
+  /// final adapter = GoRouterAdapter.fromRoutes(
+  ///   routes: routes,
+  ///   guards: [AuthGuard()],
+  ///   contextBuilder: (state) => {'ref': ref},
+  /// );
+  /// ```
+  factory GoRouterAdapter.fromRoutes({
+    required List<NavBridgeRoute> routes,
+    List<RouteGuard> guards = const [],
+    Map<String, Object?> Function(GoRouterState state)? contextBuilder,
+    String initialLocation = '/',
+    GlobalKey<NavigatorState>? navigatorKey,
+    Listenable? refreshListenable,
+    NavigationObserver? observer,
+  }) {
+    late final GoRouterAdapter adapter;
+
+    final goRoutes = _convertNavBridgeRoutes(routes);
+
+    final router = GoRouter(
+      initialLocation: initialLocation,
+      navigatorKey: navigatorKey,
+      routes: goRoutes,
+      refreshListenable: refreshListenable,
+      redirect: guards.isEmpty
+          ? null
+          : (context, state) async {
+              return adapter._runGuards(context, state);
+            },
+    );
+
+    adapter = GoRouterAdapter._(
+      router: router,
+      guards: List.from(guards),
+      isWrapped: false,
+      observer: observer,
+    );
+
+    if (contextBuilder != null) {
+      adapter.contextBuilder = contextBuilder;
+    }
+
+    return adapter;
+  }
+
   void _setupLocationListener() {
     _router.routerDelegate.addListener(() {
       final location =
@@ -264,6 +324,88 @@ class GoRouterAdapter implements RouterAdapter {
     _router.replace(location, extra: extra);
     _observer?.onNavigated(from, location);
   }
+
+  // Named navigation methods
+
+  @override
+  Future<void> goNamed(
+    String name, {
+    Map<String, String> pathParameters = const {},
+    Map<String, String> queryParameters = const {},
+    Object? extra,
+  }) async {
+    final from = currentLocation;
+    _observer?.onNavigating(from, name);
+    _router.goNamed(
+      name,
+      pathParameters: pathParameters,
+      queryParameters: queryParameters,
+      extra: extra,
+    );
+    _observer?.onNavigated(from, name);
+  }
+
+  @override
+  Future<void> pushNamed(
+    String name, {
+    Map<String, String> pathParameters = const {},
+    Map<String, String> queryParameters = const {},
+    Object? extra,
+  }) async {
+    final from = currentLocation;
+    _observer?.onNavigating(from, name);
+    _router.pushNamed(
+      name,
+      pathParameters: pathParameters,
+      queryParameters: queryParameters,
+      extra: extra,
+    );
+    _observer?.onNavigated(from, name);
+  }
+
+  @override
+  Future<void> replaceNamed(
+    String name, {
+    Map<String, String> pathParameters = const {},
+    Map<String, String> queryParameters = const {},
+    Object? extra,
+  }) async {
+    final from = currentLocation;
+    _observer?.onNavigating(from, name);
+    _router.replaceNamed(
+      name,
+      pathParameters: pathParameters,
+      queryParameters: queryParameters,
+      extra: extra,
+    );
+    _observer?.onNavigated(from, name);
+  }
+
+  // Type-safe navigation methods
+
+  @override
+  Future<void> goToRoute(TypedRoute route) => goNamed(
+        route.name,
+        pathParameters: route.pathParameters,
+        queryParameters: route.queryParameters,
+        extra: route.extra,
+      );
+
+  @override
+  Future<void> pushRoute(TypedRoute route) => pushNamed(
+        route.name,
+        pathParameters: route.pathParameters,
+        queryParameters: route.queryParameters,
+        extra: route.extra,
+      );
+
+  @override
+  Future<void> replaceRoute(TypedRoute route) => replaceNamed(
+        route.name,
+        pathParameters: route.pathParameters,
+        queryParameters: route.queryParameters,
+        extra: route.extra,
+      );
 
   @override
   void pop<T>([T? result]) {
@@ -353,4 +495,55 @@ class GoRouterAdapter implements RouterAdapter {
       );
     }).toList();
   }
+
+  /// Converts NavBridgeRoutes to GoRouter RouteBase objects.
+  static List<RouteBase> _convertNavBridgeRoutes(List<NavBridgeRoute> routes) {
+    return routes.map((route) {
+      // Handle redirect routes
+      if (route is NavBridgeRedirectRoute) {
+        return GoRoute(
+          path: route.path,
+          name: route.name,
+          redirect: (_, __) => route.redirectTo,
+        );
+      }
+
+      // Handle shell routes
+      if (route is NavBridgeShellRoute) {
+        return StatefulShellRoute.indexedStack(
+          builder: (context, state, navigationShell) =>
+              route.shellBuilder(context, navigationShell),
+          branches: route.branches.map((branch) {
+            return StatefulShellBranch(
+              navigatorKey: branch.navigatorKey,
+              initialLocation: branch.initialLocation,
+              routes: _convertNavBridgeRoutes(branch.routes),
+            );
+          }).toList(),
+        );
+      }
+
+      // Handle regular routes
+      return GoRoute(
+        path: route.path,
+        name: route.name,
+        builder: (context, state) => route.builder(
+          context,
+          RouteParams(
+            pathParams: state.pathParameters,
+            queryParams: state.uri.queryParameters,
+            extra: state.extra,
+          ),
+        ),
+        routes: _convertNavBridgeRoutes(route.children),
+      );
+    }).toList();
+  }
+
+  /// Converts NavBridgeRoutes to GoRouter RouteBase objects.
+  ///
+  /// This is a public static method that can be used when you need to
+  /// convert routes manually for custom GoRouter configurations.
+  static List<RouteBase> convertRoutes(List<NavBridgeRoute> routes) =>
+      _convertNavBridgeRoutes(routes);
 }

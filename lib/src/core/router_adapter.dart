@@ -1,5 +1,6 @@
 import 'route_definition.dart';
 import 'route_guard.dart';
+import 'typed_route.dart';
 
 /// Abstract interface for router adapters.
 ///
@@ -28,6 +29,43 @@ abstract class RouterAdapter {
 
   /// Replace the current location without adding to history.
   Future<void> replace(String location, {Object? extra});
+
+  // Named navigation methods
+
+  /// Navigate to a named route, replacing the current history.
+  Future<void> goNamed(
+    String name, {
+    Map<String, String> pathParameters = const {},
+    Map<String, String> queryParameters = const {},
+    Object? extra,
+  });
+
+  /// Push a named route onto the navigation stack.
+  Future<void> pushNamed(
+    String name, {
+    Map<String, String> pathParameters = const {},
+    Map<String, String> queryParameters = const {},
+    Object? extra,
+  });
+
+  /// Replace the current location with a named route.
+  Future<void> replaceNamed(
+    String name, {
+    Map<String, String> pathParameters = const {},
+    Map<String, String> queryParameters = const {},
+    Object? extra,
+  });
+
+  // Type-safe navigation methods
+
+  /// Navigate to a typed route, replacing the current history.
+  Future<void> goToRoute(TypedRoute route);
+
+  /// Push a typed route onto the navigation stack.
+  Future<void> pushRoute(TypedRoute route);
+
+  /// Replace the current location with a typed route.
+  Future<void> replaceRoute(TypedRoute route);
 
   /// Pop the current location from the stack.
   void pop<T>([T? result]);
