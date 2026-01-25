@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [3.0.0] - TBD
+
+### Breaking Changes
+- `AuthenticationGuard` → `RiverpodAuthenticationGuard`
+- `RoleGuard` → `RiverpodRoleGuard`
+- `RouterAdapter` interface extended (implementers must add new methods)
+
+### Added
+- Named navigation: `goNamed`, `pushNamed`, `replaceNamed`
+- Type-safe navigation with `TypedRoute`
+- `NavBridgeRoute` - router-agnostic route definitions
+- `NavBridgeShellRoute` - shell/tab navigation
+- `GuardOrchestrator` - automatic guard management
+- `NavBridgeNavigationService` - navigation service with modals
+- `RouteParams` - type-safe parameter access
+- `GoRouterAdapter.fromRoutes` factory
+
+### Deprecated
+- `AuthenticationGuard` (use `RiverpodAuthenticationGuard`)
+- `RoleGuard` (use `RiverpodRoleGuard`)
+
+---
+
 ## [2.0.0] - 2025-01-17
 
 ### Major Release - Enterprise Ready
@@ -84,5 +108,7 @@ See the [README](README.md) for the progressive migration guide.
 
 ---
 
+[3.0.0]: https://github.com/chekarhamza88-stack/nav_bridge/releases/tag/v3.0.0
 [2.0.0]: https://github.com/chekarhamza88-stack/nav_bridge/releases/tag/v2.0.0
 [1.0.0]: https://github.com/chekarhamza88-stack/nav_bridge/releases/tag/v1.0.0
+
