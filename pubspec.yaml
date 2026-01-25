@@ -1,9 +1,6 @@
 name: nav_bridge
-description: >
-  A progressive, router-agnostic navigation layer for Flutter that allows 
-  you to wrap existing GoRouter apps and migrate to a clean, testable, 
-  decoupled architecture without rewriting your routes.
-version:  3.0.0
+description: A router-agnostic navigation layer for Flutter with testable guards and progressive GoRouter migration.
+version: 3.0.1
 homepage: https://github.com/chekarhamza88-stack/nav_bridge
 repository: https://github.com/chekarhamza88-stack/nav_bridge
 issue_tracker: https://github.com/chekarhamza88-stack/nav_bridge/issues
@@ -15,7 +12,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  go_router: ^15.0.0
+  go_router: ">=15.0.0 <18.0.0"
 
 dev_dependencies:
   flutter_test:
