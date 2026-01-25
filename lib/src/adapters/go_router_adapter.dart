@@ -258,7 +258,7 @@ class GoRouterAdapter implements RouterAdapter {
       if (!guard.shouldActivateFor(location)) continue;
 
       final guardContext = GuardContext(
-        destination: RouteDefinition(path: location),
+        destination: RouteDefinition.stub(location),
         matchedLocation: location,
         pathParameters: state.pathParameters,
         queryParameters: state.uri.queryParameters,
